@@ -48,7 +48,7 @@ while True:
   if not line:
     break
   line = line.strip()
-  (sfr, sen) = line.split(' ||| ')
+  (sfr, sen, al) = line.split(' ||| ')
   ens = sen.lower().split()
   trie = build_match_trie(ens)
   frs = sfr.lower().split()
