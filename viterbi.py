@@ -10,7 +10,7 @@ Created on Sep 12, 2013
 from features import extract
 from collections import defaultdict
 
-def execute(sentence, labelset, postags, weights):
+def execute(sentence, labelset, postags, weights, all_feats):
     if '*' not in labelset:
         labelset.append('*')
     n = len(sentence)
@@ -36,8 +36,7 @@ def execute(sentence, labelset, postags, weights):
             argmax = '1'
             best_feat = ''
             for w in labelset:
-                #TODO: implement trigrams!
-                local_score, feats = get_score(sentence[k-1], u, w, postags[k-1],  weights)
+                local_score, feats = get_score(sentence[k-1], u, w, postags[k-1],  weights, all_feats)
                 score = pi[k-1][w] + local_score
                 if score > max_score:
                     max_score = score
@@ -81,9 +80,9 @@ def execute(sentence, labelset, postags, weights):
     
     return tags, features
 
-def get_score(word, current_tag, prev_tag, postag, weights):
+def get_score(word, current_tag, prev_tag, postag, weights, all_feats):
     score = 0.0
-    features_list = extract(word, current_tag, prev_tag, postag)
+    features_list = extract(word, current_tag, prev_tag, postag, all_feats)
 
     for feature in features_list:
         if feature in weights:

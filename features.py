@@ -2,7 +2,7 @@
 
 import sys, re
 
-def extract(word, label, prev, postag):
+def extract(word, label, prev, postag, feat_list):
     feats = []
 
     # bigram
@@ -53,7 +53,15 @@ def extract(word, label, prev, postag):
     if "'s" in word:
         feats.append('Li='+label+":APi")
 
-    return feats
+    if feat_list == None:
+        return feats
+    else:
+        feat_indices = []
+        for feat in feats:
+            if feat not in feat_list:
+                continue
+            feat_indices.append(feat_list.index(feat))
+        return feat_indices
 
 def get_all(trainfile):
     sys.stderr.write("reading training data\n")
@@ -73,7 +81,7 @@ def get_all(trainfile):
                prev = '*'
             else:
                prev = tagseqs[i][j-1]
-            featset.update(extract(word, tag, prev, postag))
+            featset.update(extract(word, tag, prev, postag, None)) # get a list of all features possible
             j += 1
         i += 1
     return sents, tagseqs, postagseqs, list(featset)
