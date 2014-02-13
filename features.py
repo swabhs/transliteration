@@ -68,15 +68,31 @@ def get_all(trainfile):
     sents, tagseqs, postagseqs = read_data(trainfile)
     
     sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
-    featset = set([])
+    #featlist = extract_all_train_features(sents,tagsseqs, postagseqs
+    featlist = read_features(sys.argv[2])
+
+    return sents, tagseqs, postagseqs, featlist
+
+def read_features(featsfile):
+    featlist = []
+    feats = open(featsfile, 'r')
+    while True:
+        line = feats.readline()
+        if not line:
+            break
+        featlist.append(line.strip())
+    feats.close()
+    return featlist
     
+def extract_all_train_features(sents, tagseqs, postagseqs):
+    featset = set([])
     i = 0
     for sent in sents:
         sys.stderr.write(str(i) + "\r")
         j = 0
         for word in sent:
-	    tag = tagseqs[i][j]
-            postag = postagseqs[i][j]   
+            tag = tagseqs[i][j]
+            postag = postagseqs[i][j]
             if j == 0: # first position
                prev = '*'
             else:
@@ -84,7 +100,9 @@ def get_all(trainfile):
             featset.update(extract(word, tag, prev, postag, None)) # get a list of all features possible
             j += 1
         i += 1
-    return sents, tagseqs, postagseqs, list(featset)
+    featlist = list(featset)
+    #print '\n'.join(featlist)
+    return featlist
 
 def read_data(datafile):
     data = open(datafile, 'r')
@@ -116,8 +134,8 @@ def read_data(datafile):
     return sents, tagseqs, postagseqs
 
 if __name__ == "__main__":
-    sentset, labelset, postagset = read_data(sys.argv[1])
-    #sentset, labelset, postagset, all_feats = get_all(sys.argv[1])
-    print len(sentset)
-    print len(labelset)
-    print len(all_feats)
+    #sentset, labelset, postagset = read_data(sys.argv[1])
+    sentset, labelset, postagset, all_feats = get_all(sys.argv[1])
+    #print len(sentset)
+    #print len(labelset)
+    #print len(all_feats)

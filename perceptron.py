@@ -1,7 +1,7 @@
 #/usr/bin/python
 
 from __future__ import division
-import sys, numpy
+import sys
 import features
 from cost_viterbi import execute
 
@@ -16,8 +16,8 @@ def init_weights(all_features):
     return fmap
 
 def run(sentset, labelset, postagset, num_iter, all_feats):
-    weights = numpy.array(init_weights(all_feats))
-    weights_avg = numpy.array(init_weights(all_feats))
+    weights = init_weights(all_feats)
+    weights_avg = init_weights(all_feats)
 
     for i in range(num_iter):
         sys.stderr.write("Iteration " + str(i) + "\n"+ str(len(sentset)) + " sentences\n")
@@ -28,15 +28,22 @@ def run(sentset, labelset, postagset, num_iter, all_feats):
             labelseq = labelset[j]
             postagseq = postagset[j]
             #TODO change this in viterbi
-            predseq, f = execute(sent, all_labels, postagseq, weights, labelseq, all_feats)
+            sys.stderr.write("viterbi\n")
+            predseq = execute(sent, all_labels, postagseq, weights, labelseq, all_feats)
+            sys.stderr.write("perceptron update")
             if labelseq != predseq:
                 update(weights, predseq, labelseq, sent, postagseq, all_feats)
-                weights_avg = weights_avg + weights
+                add_weights(weights_avg, weights)
 
-    weights_avg /= num_iter*len(sentset)
+    for i in range(len(weights_avg)):
+        weights_avg[i] /= num_iter*len(sentset)
     for f in all_feats:
         print f, weights_avg[all_feats.index(f)]
     return weights_avg
+
+def add_weights(w1, w2):
+    for i in range(len(w1)):
+        w1[i] += w2[i]
         
 def update(weights, predseq, labelseq, sent, postagseq, all_feats):
     for i in range(len(predseq)):
