@@ -2,22 +2,23 @@
 
 import sys, re
 
-def extract(word, label, prev, prevprev):
+def extract(word, label, prev, postag):
     feats = []
+
     # bigram
     feats.append('Li-1='+prev+':Li='+label)
     # trigram
-    feats.append('Li-2='+prevprev+':Li-1='+prev+':Li='+label) 
+    # feats.append('Li-2='+prevprev+':Li-1='+prev+':Li='+label) 
     # emission
     feats.append('Li='+label+':Wi='+word)
     # pos tag
-
+    feats.append('Li='+label+':Pi='+postag)
     # is punctuation
     if len(word) == 1 and word.isdigit() == False and word.isalnum() == False:
-	feats.append('Li='+label+":Pi")
+	feats.append('Li='+label+":PUi")
     # contains punctuation
-    #if len(word) > 1 and re.search('[,.@#\%(){}<>\?!:$\*&\\\-\'\"]', word)!=None:
-	#feats.append('Li='+label+":Qi")
+    if word.isalnum() == False:
+	feats.append('Li='+label+":Qi")
     # is title-cased
     if word.istitle():
 	feats.append('Li='+label+":Ti")
@@ -51,53 +52,64 @@ def extract(word, label, prev, prevprev):
     # contains a "'s"
     if "'s" in word:
         feats.append('Li='+label+":APi")
+
     return feats
 
 def get_all(trainfile):
-     train = open(trainfile, 'r')
-     feats = set([])
-     sents = []
-     tagseqs = []
-     #postagseqs = []
-     sent = []
-     tags = []
-     #postags = []
-     while 1:
-        line = train.readline()
+    sys.stderr.write("reading training data\n")
+    sents, tagseqs, postagseqs = read_data(trainfile)
+    
+    sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
+    featset = set([])
+    
+    i = 0
+    for sent in sents:
+        sys.stderr.write(str(i) + "\r")
+        j = 0
+        for word in sent:
+	    tag = tagseqs[i][j]
+            postag = postagseqs[i][j]   
+            if j == 0: # first position
+               prev = '*'
+            else:
+               prev = tagseqs[i][j-1]
+            featset.update(extract(word, tag, prev, postag))
+            j += 1
+        i += 1
+    return sents, tagseqs, postagseqs, list(featset)
+
+def read_data(datafile):
+    data = open(datafile, 'r')
+    sents = []
+    tagseqs = []
+    postagseqs = []
+    sent = []
+    tags = []
+    postags = []
+    while 1:
+        line = data.readline()
         if not line:
-            break
+	   break
         line = line.strip()
-        if line == "":
-            sents.append(sent)
-            tagseqs.append(tags)
-            #postagseqs.append(postags)
-            sent = []
-            tags = []
-            #postags = []
-            continue
-        word, tag = line.split("\t")
-        sent.append(word.strip())
-        tags.append(tag.strip())
-        #postags.append(pos.strip())
+	if line == "":
+	    sents.append(sent)
+	    tagseqs.append(tags)
+	    postagseqs.append(postags)
+	    sent = []
+	    tags = []
+	    postags = []
+	    continue
         
-        if len(tags) == 1:
-            prev = '*'
-            prevprev = '*'
-        elif len(tags) == 2:
-            prevprev = '*'
-            prev = tags[-2]
-        else:
-            prevprev = tags[-3]
-            prev = tags[-2]
-        #feats.update(extract(word, tag, prev, pos, v1, v2))
-        feats.update(extract(word, tag, prev, prevprev))
-     #print feats
-     train.close()
-     #return sents, tagseqs, postagseqs, vecs1, vecs2, list(feats)
-     return sents, tagseqs, list(feats)
+	word, pos, tag = line.split("\t")
+	sent.append(word.strip())
+	tags.append(tag.strip())
+	postags.append(pos.strip())
+    data.close()
+    return sents, tagseqs, postagseqs
 
 if __name__ == "__main__":
-    sentset, labelset, all_feats = get_all(sys.argv[1])
-    print sentset[25]
-    print labelset[25]
+    sentset, labelset, postagset = read_data(sys.argv[1])
+    #sentset, labelset, postagset, all_feats = get_all(sys.argv[1])
+    print len(sentset)
+    print len(labelset)
     print len(all_feats)

@@ -10,7 +10,7 @@ Created on Sep 12, 2013
 from features import extract
 from collections import defaultdict
 
-def execute(sentence, labelset, postags, weights):
+def execute(sentence, labelset, postags, weights, goldlabels):
     if '*' not in labelset:
         labelset.append('*')
     n = len(sentence)
@@ -36,9 +36,14 @@ def execute(sentence, labelset, postags, weights):
             argmax = '1'
             best_feat = ''
             for w in labelset:
-                #TODO: implement trigrams!
+                if k >= 2  and w != goldlabels[k-2]:
+                    cost = 1.0
+                    if goldlabels[k-2] in ('B','I') and w == 'O':
+                        cost += 3.0
+                else:
+                    cost = 0.0
                 local_score, feats = get_score(sentence[k-1], u, w, postags[k-1],  weights)
-                score = pi[k-1][w] + local_score
+                score = pi[k-1][w] + local_score + cost
                 if score > max_score:
                     max_score = score
                     argmax = w

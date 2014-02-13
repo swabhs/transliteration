@@ -5,7 +5,6 @@ import features, sys
 from cost_viterbi import execute
 
 step = 1.0
-cost_param = 3.0
 all_labels = ['B', 'I', 'O']
 
 def init(all_features):
@@ -15,13 +14,13 @@ def init(all_features):
         
     return fmap
 
-def run(sentset, labelset, postagset, num_iter, all_feats):
+def run(sentset, labelset, postagset, num_iter, all_feats, k):
     weights = init(all_feats)
     weights_avg = init(all_feats)
 
     for i in range(num_iter):
         sys.stderr.write("Iteration " + str(i) + "\n"+ str(len(sentset)) + " sentences\n")
-        for j in range(len(sentset)):
+        for j in range(len(sentset)/k):
             sys.stderr.write(str(j)+"\r")
             
             sent = sentset[j]
@@ -69,4 +68,5 @@ if __name__ == "__main__":
     sentset, labelset, postagset, all_feats = features.get_all(sys.argv[1])
     sys.stderr.write("\n" + str(len(all_feats)) + " features in all\n")
     num_iter = 1
-    run(sentset, labelset, postagset, num_iter, all_feats)
+    frac = int(sys.argv[2])
+    run(sentset, labelset, postagset, num_iter, all_feats, frac)
