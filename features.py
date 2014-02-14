@@ -164,7 +164,7 @@ def read_data(datafile):
     data.close()
     return sents, tagseqs, postagseqs
 
-def get_maps(sents, tagseqs, postagseqs):
+def get_maps(sents, postagseqs):
     vocset = set([])
     pset = set([])
 
@@ -194,7 +194,7 @@ def get_maps(sents, tagseqs, postagseqs):
 def get_all(trainfile):
     sys.stderr.write("reading training data\n")
     sents, tagseqs, postagseqs = read_data(trainfile)
-    info = get_maps(sents, tagseqs, postagseqs)
+    info = get_maps(sents, postagseqs)
     
     sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
     #featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)

@@ -2,7 +2,7 @@
 
 from __future__ import division
 import viterbi
-from features import read_data
+from features import read_data, get_maps
 import sys
 
 def read_weights(weightsfile):
@@ -14,14 +14,12 @@ def read_weights(weightsfile):
             break
         line = line.strip()
         f, wt = line.split(' ')
-        weights[f] = float(wt)
+        weights[int(f)] = float(wt)
     feats.close()
     return weights
 
-def main(testfile, weightsfile):
+def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfile):
     labelset = ['B', 'I', 'O', '*']
-    sents, goldtagseqs, postagseqs = read_data(testfile)
-    weights = read_weights(weightsfile)
 
     acc = 0.0
     tot = 0
@@ -32,7 +30,7 @@ def main(testfile, weightsfile):
 	sent = sents[i]
         postags = postagseqs[i]
 
-	tags, f = viterbi.execute(sent, labelset, postags, weights)
+	tags, f = viterbi.execute(sent, labelset, postags, weights, info)
         for j in range(len(tags)):
             if tags[j] == goldtagseqs[i][j]:
                 acc += 1
@@ -41,8 +39,11 @@ def main(testfile, weightsfile):
         #print ' '.join(sent)
 	#print ' '.join(tags), '\n', ' '.join(tagseqs[i])
         #print
-    print "full acc =", acc/tot
+    sys.stderr.write("full acc =" + str(acc/tot) + "\n\n")
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    sents, goldtagseqs, postagseqs = read_data(sys.argv[1])
+    info = get_maps(sents, postagseqs)
+    weights = read_weights(sys.argv[2])
+    decode(sents, goldtagseqs, postagseqs, info, weights)
 
