@@ -9,13 +9,12 @@ step = 1.0
 all_labels = ['B', 'I', 'O']
 
 def init_weights(all_features):
-    fmap = []
-    for feat in range(len(all_features)):
-        fmap.append(0.0)
-        
+    fmap = {}
+    for feat in all_features:
+        fmap[feat]  = 0.0
     return fmap
 
-def run(sentset, labelset, postagset, num_iter, all_feats):
+def run(sentset, labelset, postagset, num_iter, all_feats, info):
     weights = init_weights(all_feats)
     weights_avg = init_weights(all_feats)
 
@@ -27,25 +26,27 @@ def run(sentset, labelset, postagset, num_iter, all_feats):
             sent = sentset[j]
             labelseq = labelset[j]
             postagseq = postagset[j]
-            #TODO change this in viterbi
-            sys.stderr.write("viterbi\n")
-            predseq = execute(sent, all_labels, postagseq, weights, labelseq, all_feats)
-            sys.stderr.write("perceptron update")
+            predseq = execute(sent, all_labels, postagseq, weights, labelseq, info)
             if labelseq != predseq:
-                update(weights, predseq, labelseq, sent, postagseq, all_feats)
+                update(weights, predseq, labelseq, sent, postagseq, info)
                 add_weights(weights_avg, weights)
 
-    for i in range(len(weights_avg)):
+#    for i in range(len(weights_avg)):
+#        weights_avg[i] /= num_iter*len(sentset)
+#    for f in all_feats:
+#        print f, weights_avg[all_feats.index(f)]
+    for i in weights_avg.iterkeys():
         weights_avg[i] /= num_iter*len(sentset)
-    for f in all_feats:
-        print f, weights_avg[all_feats.index(f)]
+        print i, weights_avg[i]
     return weights_avg
 
 def add_weights(w1, w2):
-    for i in range(len(w1)):
+    #for i in range(len(w1)):
+        #w1[i] += w2[i]
+    for i in w1.iterkeys():
         w1[i] += w2[i]
         
-def update(weights, predseq, labelseq, sent, postagseq, all_feats):
+def update(weights, predseq, labelseq, sent, postagseq, info):
     for i in range(len(predseq)):
         true = labelseq[i]
         pred = predseq[i]
@@ -57,18 +58,20 @@ def update(weights, predseq, labelseq, sent, postagseq, all_feats):
             prev_true = labelseq[i-1]
             prev_pred = predseq[i-1]
         if true != pred:
-            true_feats = features.extract(sent[i], true, prev_true, pos, all_feats)
-            pred_feats = features.extract(sent[i], pred, prev_pred, pos, all_feats)
+            true_feats = features.extract(sent[i], true, prev_true, pos, info)
+            pred_feats = features.extract(sent[i], pred, prev_pred, pos, info)
             up = set(true_feats).difference(set(pred_feats))
             for u in up:
-                weights[u] += step
+                if u in weights:
+                    weights[u] += step
             down = set(pred_feats).difference(set(true_feats))
             for d in down:
-                weights[d] -= step
+                if d in weights:
+                    weights[d] -= step
     return weights  
 
 if __name__ == "__main__":
-    sentset, labelset, postagset, all_feats = features.get_all(sys.argv[1])
+    sentset, labelset, postagset, all_feats, info = features.get_all(sys.argv[1])
     sys.stderr.write("\n" + str(len(all_feats)) + " features in all\n")
     num_iter = 1
-    run(sentset, labelset, postagset, num_iter, all_feats)
+    run(sentset, labelset, postagset, num_iter, all_feats, info)
