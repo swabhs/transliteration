@@ -54,5 +54,5 @@ def read_vocabulary(trainfile):
     return vocmap
 
 if __name__ == "__main__":
-    #read_data(sys.argv[1])
-    read_vocabulary(sys.argv[1])
+    read_data(sys.argv[1])
+    #read_vocabulary(sys.argv[1])

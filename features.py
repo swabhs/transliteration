@@ -11,7 +11,7 @@ def extract(word, label, prev, postag, info):
     feats = []
     ftype = 100000000
     ltype = 100000
-    vocmap, pmap, tagmap = info
+    vocmap, pmap, tagmap, glist = info
 
     # 1. bigram
     # feats.append('Li-1='+prev+':Li='+label)
@@ -92,6 +92,10 @@ def extract(word, label, prev, postag, info):
         #feats.append('Li='+label+":APi")
         feats.append(16 * ftype + tagmap[label] * ltype)
 
+    # 17. gazetteer
+    if glist != None and label in tagmap and word in glist:
+        feats.append(17 * ftype + tagmap[label] * ltype)
+
 #    if feat_list == None:
 #        return feats
 #    else:
@@ -164,7 +168,7 @@ def read_data(datafile):
     data.close()
     return sents, tagseqs, postagseqs
 
-def get_maps(sents, postagseqs):
+def get_maps(sents, postagseqs, gazfile):
     vocset = set([])
     pset = set([])
 
@@ -189,22 +193,38 @@ def get_maps(sents, postagseqs):
         j += 1
 
     lmap = {'B':1, 'I':2, 'O':3}
-    return (vocmap, pmap, lmap) 
+    return (vocmap, pmap, lmap, get_gazetteer(gazfile)) 
 
-def get_all(trainfile):
+def get_gazetteer(gazfile):
+    if gazfile == "x.dat":
+        return None
+    glist = []
+    g = open(gazfile, 'r')
+    j = 1
+    while True:
+       line = g.readline()
+       if not line:
+           break
+       word, score = line.strip().split(" ")
+       glist.append(word)
+       j += 1
+    g.close()
+    return glist
+
+def get_all(trainfile, gazfile, featfile):
     sys.stderr.write("reading training data\n")
     sents, tagseqs, postagseqs = read_data(trainfile)
-    info = get_maps(sents, postagseqs)
-    
+    info = get_maps(sents, postagseqs, gazfile)
+ 
     sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
-    #featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
-    featlist = read_features(sys.argv[2])
+    featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
+    #featlist = read_features(featfile)
 
     return sents, tagseqs, postagseqs, featlist, info
 
 if __name__ == "__main__":
     #sentset, labelset, postagset = read_data(sys.argv[1])
-    sentset, labelset, postagset, all_feats, info = get_all(sys.argv[1])
+    sentset, labelset, postagset, all_feats, info = get_all(sys.argv[1], sys.argv[2], sys.argv[3])
     #print len(sentset)
     #print len(labelset)
     #print len(all_feats)

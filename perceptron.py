@@ -16,7 +16,9 @@ def init_weights(all_features):
         fmap[feat]  = 0.0
     return fmap
 
-def run(sentset, labelset, postagset, all_feats, info, weights):
+def run(sentset, labelset, postagset, all_feats, info, weights, testdata):
+    tsents, tgoldtagseqs, tpostagseqs, tinfo = testdata
+
     weights_avg = init_weights(all_feats)
     order = [i for i in range(len(sentset))]
     shuffle(order)
@@ -32,7 +34,10 @@ def run(sentset, labelset, postagset, all_feats, info, weights):
 	if labelseq != predseq:
 	    update(weights, predseq, labelseq, sent, postagseq, info)
 	    add_weights(weights_avg, weights)
+
         k += 1
+        if k % 10000 == 0 or k == len(sentset):
+            decode(tsents, tgoldtagseqs, tpostagseqs, tinfo, weights)
 
     for key in weights_avg.iterkeys():
         weights_avg[key] /= len(sentset)
@@ -72,18 +77,37 @@ def update(weights, predseq, labelseq, sent, postagseq, info):
                     weights[d] -= step
     return weights  
 
-if __name__ == "__main__":
-    sentset, labelset, postagset, all_feats, info = features.get_all(sys.argv[1])
+def learn_and_decode(trainfile, featlistfile, gazfile, num_iter, testfile):
+    sentset, labelset, postagset, all_feats, info = features.get_all(trainfile, gazfile, featlistfile)
     sys.stderr.write("\n" + str(len(all_feats)) + " features in all\n")
 
-    sys.stderr.write("\n reading test data \n")
-    tsents, tgoldtagseqs, tpostagseqs = features.read_data(sys.argv[3])
-    tinfo = features.get_maps(tsents, tpostagseqs)
+    sys.stderr.write("\nreading test data \n")
+    tsents, tgoldtagseqs, tpostagseqs = features.read_data(testfile)
+    tinfo = features.get_maps(tsents, tpostagseqs, gazfile)
     
-    num_iter = int(sys.argv[4])
+    testdata = (tsents, tgoldtagseqs, tpostagseqs, tinfo)
     weights = init_weights(all_feats)
-    
+    tot_weights = init_weights(all_feats)
+ 
     for ite in range(num_iter):
         sys.stderr.write("Iteration " + str(ite) + "\n"+ str(len(sentset)) + " sentences\n")
-        weights = run(sentset, labelset, postagset, all_feats, info, weights)
-        decode(tsents, tgoldtagseqs, tpostagseqs, tinfo, weights)
+        weights = run(sentset, labelset, postagset, all_feats, info, weights, testdata)
+        add_weights(tot_weights, weights)
+        #decode(tsents, tgoldtagseqs, tpostagseqs, tinfo, weights)
+
+    for key in tot_weights.iterkeys():
+        tot_weights[key] /= num_iter
+        print key, tot_weights[key]
+    print
+
+    sys.stderr.write("\nfinal performance on test\n")
+    decode(tsents, tgoldtagseqs, tpostagseqs, tinfo, tot_weights)
+
+if __name__ == "__main__":
+    trainfile = sys.argv[1]
+    featlistfile = sys.argv[2]
+    gazfile = sys.argv[3]
+    num_iter = int(sys.argv[4])
+    testfile = sys.argv[5]
+
+    learn_and_decode(trainfile, featlistfile, gazfile, num_iter, testfile)

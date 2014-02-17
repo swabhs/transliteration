@@ -1,5 +1,6 @@
 # /usr/bin/python
 
+
 from __future__ import division
 import viterbi
 from features import read_data, get_maps
@@ -42,8 +43,11 @@ def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfil
     sys.stderr.write("full acc =" + str(acc/tot) + "\n\n")
 
 if __name__ == "__main__":
-    sents, goldtagseqs, postagseqs = read_data(sys.argv[1])
-    info = get_maps(sents, postagseqs)
-    weights = read_weights(sys.argv[2])
+    testfile = sys.argv[1]
+    weightsfile = sys.argv[2]
+    gazfile = sys.argv[3]
+    sents, goldtagseqs, postagseqs = read_data(testfile)
+    info = get_maps(sents, postagseqs, gazfile)
+    weights = read_weights(weightsfile)
     decode(sents, goldtagseqs, postagseqs, info, weights)
 
