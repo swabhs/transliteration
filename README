@@ -1,3 +1,4 @@
+===================================================================================================
 To train the classifier, run:
 
 pypy perceptron.py train.dat featlist.dat gaz.dat x test.dat > weights.dat
@@ -29,4 +30,32 @@ pypy decode.py test.dat weights.dat gaz.dat > output.dat
 A fully trained model can be found at /usr0/home/sswayamd/transliteration/weights.dat
 
 output.dat   - contains the output tags in the same format as the test file
+
+===================================================================================================
+Preprocessing
+
+Chris's script to convert parallel data into training data with BIO tags:
+------------------------------------------------------------------------
+python mnt.py inp > output1
+
+My script to get tab-separated training data, for POS tagging:
+-------------------------------------------------------------
+python data_extract.py output1 > output2
+
+Turboparser to tag the German data:
+----------------------------------
+./TurboTagger --test --evaluate \
+--file_model=/usr2/home/sswayamd/wmt/TurboParser/models/german_tagger.model \
+--file_test=output2 \
+--file_prediction=output3 \
+--logtostderr
+
+More preprocessing:
+------------------
+paste output3 output2 > output4
+awk '{print $1,$2,$4}' output4 > output5
+sed 's/ /\t/g' output5 > output.dat
+
+output.dat   - contains the data in the format that is accepted by classifier
+
 ===================================================================================================
