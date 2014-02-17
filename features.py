@@ -93,8 +93,8 @@ def extract(word, label, prev, postag, info):
         feats.append(16 * ftype + tagmap[label] * ltype)
 
     # 17. gazetteer
-    if glist != None and label in tagmap and word in glist:
-        feats.append(17 * ftype + tagmap[label] * ltype)
+    #if glist != None and label in tagmap and word in glist:
+        #feats.append(17 * ftype + tagmap[label] * ltype)
 
 #    if feat_list == None:
 #        return feats
