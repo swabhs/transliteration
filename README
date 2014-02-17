@@ -8,7 +8,7 @@ train.dat    - the training data file is a tab-separated file in this format:
 de_word	de_pos	de_tag
 
 featlist.dat - the feature list file is a list of preextracted features from
-               the training data.
+               the training data. Find it at /usr0/home/sswayamd/transliteration/featlist.dat
 
 gaz.dat      - file containing german/english words from the gazetteer
 
