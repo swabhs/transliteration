@@ -24,7 +24,9 @@ weights.dat  - output file containing the feature names and feature weights, spa
 
 To run the decoder:
 
-pypy decode.py test.dat weights.dat gaz.dat 
+pypy decode.py test.dat weights.dat gaz.dat > output.dat
 
 A fully trained model can be found at /usr0/home/sswayamd/transliteration/weights.dat
+
+output.dat   - contains the output tags in the same format as the test file
 ===================================================================================================

@@ -33,8 +33,10 @@ def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfil
 
 	tags, f = viterbi.execute(sent, labelset, postags, weights, info)
         for j in range(len(tags)):
+            print sent[j]+"\t"+postags[j]+"\t"+tags[j]
             if tags[j] == goldtagseqs[i][j]:
                 acc += 1
+        print
         
         tot += len(tags)
         #print ' '.join(sent)
