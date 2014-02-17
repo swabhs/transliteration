@@ -217,8 +217,8 @@ def get_all(trainfile, gazfile, featfile):
     info = get_maps(sents, postagseqs, gazfile)
  
     sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
-    featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
-    #featlist = read_features(featfile)
+    #featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
+    featlist = read_features(featfile)
 
     return sents, tagseqs, postagseqs, featlist, info
 
