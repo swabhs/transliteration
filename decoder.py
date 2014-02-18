@@ -1,6 +1,5 @@
 # /usr/bin/python
 
-
 from __future__ import division
 import viterbi
 from features import read_data, get_maps
@@ -22,10 +21,13 @@ def read_weights(weightsfile):
 def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfile):
     labelset = ['B', 'I', 'O', '*']
 
+    tp = 0
     acc = 0.0
     tot = 0
-
-    sys.stderr.write("total test sentences = " + str(len(sents)) + "\n")
+    tot_rec = 0
+    tot_prec = 0
+    
+    sys.stderr.write("total test sentences = " + str(len(sents)) + "\n\n")
     for i in range(len(sents)):
         sys.stderr.write(str(i) + "\r")
 	sent = sents[i]
@@ -36,13 +38,21 @@ def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfil
             print sent[j]+"\t"+postags[j]+"\t"+tags[j]
             if tags[j] == goldtagseqs[i][j]:
                 acc += 1
+                if goldtagseqs[i][j] in ['B','I']:
+                    tp += 1
+            if goldtagseqs[i][j] in ('B', 'I'):
+                tot_rec += 1
+            if tags[j] in ('B', 'I'):
+                tot_prec += 1
         print
         
         tot += len(tags)
         #print ' '.join(sent)
 	#print ' '.join(tags), '\n', ' '.join(tagseqs[i])
         #print
-    sys.stderr.write("full acc =" + str(acc/tot) + "\n\n")
+    sys.stderr.write("accuracy  = " + str(acc/tot) + "\n")
+    sys.stderr.write("recall    = " + str(tp/tot_rec) + "\n")
+    sys.stderr.write("precision = " + str(tp/tot_prec) + "\n\n")
 
 if __name__ == "__main__":
     testfile = sys.argv[1]

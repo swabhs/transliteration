@@ -35,7 +35,7 @@ def execute(sentence, labelset, postags, weights, goldlabels, info):
                 if k >= 2  and w != goldlabels[k-2]:
                     cost = 1.0
                     if goldlabels[k-2] in ('B','I') and w == 'O':
-                        cost += 3.0
+                        cost += 9.0
                 else:
                     cost = 0.0
                 local_score, feats = get_score(sentence[k-1], u, w, postags[k-1],  weights, info)

@@ -162,6 +162,7 @@ def read_data(datafile):
 	    continue
         
 	word, pos, tag = line.split("\t")
+        print pos.strip()+"...."
 	sent.append(word.strip())
 	tags.append(tag.strip())
 	postags.append(pos.strip())
