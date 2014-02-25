@@ -94,20 +94,20 @@ def update(weights, predseq, labelseq, sent, postagseq, info, ad):
                         weights[u] += step # ??
             for d in down:
                 if d in weights:
-                    if ad[u] > 0.0:
+                    if ad[d] > 0.0:
                         weights[d] -= step/math.sqrt(ad[d]) # ADAGRAD
                     else:
-                        weights[u] -- step # ??
+                        weights[d] -- step # ??
         
     return weights  
 
-def learn_and_decode(trainfile, featlistfile, gazfile, num_iter, testfile):
-    sentset, labelset, postagset, all_feats, info = framework.get_all(trainfile, gazfile, featlistfile)
+def learn_and_decode(trainfile, featlistfile, gazfile, brownfile, num_iter, testfile):
+    sentset, labelset, postagset, all_feats, info = framework.get_all(trainfile, gazfile, featlistfile, brownfile)
     sys.stderr.write("\n" + str(len(all_feats)) + " features in all\n")
 
     sys.stderr.write("\nreading test data \n")
     tsents, tgoldtagseqs, tpostagseqs = framework.read_data(testfile)
-    tinfo = framework.get_maps(tsents, tpostagseqs, gazfile)
+    tinfo = framework.get_maps(tsents, tpostagseqs, gazfile, brownfile)
     
     testdata = (tsents, tgoldtagseqs, tpostagseqs, tinfo)
     weights = init_weights(all_feats)
@@ -132,7 +132,8 @@ if __name__ == "__main__":
     trainfile = sys.argv[1]
     featlistfile = sys.argv[2]
     gazfile = sys.argv[3]
-    num_iter = int(sys.argv[4])
-    testfile = sys.argv[5]
+    brownfile = sys.argv[4]
+    num_iter = int(sys.argv[5])
+    testfile = sys.argv[6]
 
-    learn_and_decode(trainfile, featlistfile, gazfile, num_iter, testfile)
+    learn_and_decode(trainfile, featlistfile, gazfile, brownfile, num_iter, testfile)

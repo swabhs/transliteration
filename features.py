@@ -1,6 +1,6 @@
 # /usr/bin/python
 
-import sys, re
+import sys, re, math
 
 '''
 2 places for feature type
@@ -11,7 +11,7 @@ def extract(word, label, prev, postag, info):
     feats = []
     ftype = 100000000
     ltype = 100000
-    vocmap, pmap, tagmap, gmap = info
+    vocmap, pmap, tagmap, gmap, brmap = info
 
     # 1. bigram
     # feats.append('Li-1='+prev+':Li='+label)
@@ -102,14 +102,9 @@ def extract(word, label, prev, postag, info):
         gbin = gmap[word]
         feats.append(17 * ftype + tagmap[label] * ltype + gbin)
 
-#    if feat_list == None:
-#        return feats
-#    else:
-#        feat_indices = []
-#        for feat in feats:
-#            if feat not in feat_list:
-#                continue
-#            feat_indices.append(feat_list.index(feat))
-#        return feat_indices
+    # 18. brown clusters
+    if label in tagmap and word in brmap:
+        brown = brmap[word]
+        feats.append(18 * int(math.pow(10,20)) + tagmap[label] * int(math.pow(10,18)) + brown)
     return feats
 

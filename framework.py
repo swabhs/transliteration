@@ -75,7 +75,7 @@ def read_data(datafile):
     data.close()
     return sents, tagseqs, postagseqs
 
-def get_maps(sents, postagseqs, gazfile):
+def get_maps(sents, postagseqs, gazfile, brownfile):
     vocset = set([])
     pset = set([])
 
@@ -100,7 +100,7 @@ def get_maps(sents, postagseqs, gazfile):
         j += 1
 
     lmap = {'B':1, 'I':2, 'O':3}
-    return (vocmap, pmap, lmap, get_gazetteer(gazfile)) 
+    return (vocmap, pmap, lmap, get_gazetteer(gazfile), get_brown(brownfile)) 
 
 def get_gazetteer(gazfile):
     if gazfile == "x.dat":
@@ -118,10 +118,24 @@ def get_gazetteer(gazfile):
     g.close()
     return gmap
 
-def get_all(trainfile, gazfile, featfile):
+def get_brown(brownfile):
+    brmap = {}
+    f = open(brownfile, 'r')
+    j = 1
+    while True:
+       line = f.readline()
+       if not line:
+           break
+       brown, word, num = line.strip().split("\t")
+       brmap[word] = int(brown)
+       j += 1
+    f.close()
+    return brmap
+
+def get_all(trainfile, gazfile, featfile, brownfile):
     sys.stderr.write("reading training data\n")
     sents, tagseqs, postagseqs = read_data(trainfile)
-    info = get_maps(sents, postagseqs, gazfile)
+    info = get_maps(sents, postagseqs, gazfile, brownfile)
  
     sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
     #featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
@@ -130,4 +144,4 @@ def get_all(trainfile, gazfile, featfile):
     return sents, tagseqs, postagseqs, featlist, info
 
 if __name__ == "__main__":
-    sentset, labelset, postagset, all_feats, info = get_all(sys.argv[1], sys.argv[2], sys.argv[3])
+    sentset, labelset, postagset, all_feats, info = get_all(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
