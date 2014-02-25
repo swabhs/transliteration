@@ -26,10 +26,10 @@ def read_data(filename):
 #                tag = "1"
 #            else:
 #                tag = "0"
-            #print word+"\t"+tag
+            print word+"\t"+tag
             i += 1
-        print sent + "|||" + tagseq
-        #print
+        #print sent + "|||" + tagseq
+        print
     f.close()
 
 def read_vocabulary(trainfile):
