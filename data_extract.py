@@ -18,18 +18,15 @@ def read_data(filename):
         tags = tagseq.split(' ')
         if len(sentence) != len(tags):
             sys.stderr.write(sent+ " "+ tagseq + "\n")
+            for word in sentence:
+                print word+"\tO"
+            print
             continue
-        i = 0
         for word in sentence:
             tag = tags[i]
-#            if tags[i] == "B" or tags[i] == "I":
-#                tag = "1"
-#            else:
-#                tag = "0"
             print word+"\t"+tag
-            i += 1
-        #print sent + "|||" + tagseq
         print
+        #print sent + "|||" + tagseq
     f.close()
 
 def read_vocabulary(trainfile):
