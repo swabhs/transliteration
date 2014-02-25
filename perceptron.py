@@ -2,6 +2,7 @@
 
 from __future__ import division
 from random import shuffle
+import math
 import sys
 import framework
 from features import extract
@@ -41,6 +42,7 @@ def run(sentset, labelset, postagset, all_feats, info, weights, testdata, ad):
 
         k += 1
         if k % 10000 == 0: 
+            framework.write_weights(weights, k)
             decode(tsents, tgoldtagseqs, tpostagseqs, tinfo, weights)
 
     decode(tsents, tgoldtagseqs, tpostagseqs, tinfo, weights)
@@ -86,10 +88,16 @@ def update(weights, predseq, labelseq, sent, postagseq, info, ad):
             
             for u in up:
                 if u in weights:
-                    weights[u] += step/ad[u] # ADAGRAD
+                    if ad[u] > 0.0:
+                        weights[u] += step/math.sqrt(ad[u]) # ADAGRAD
+                    else:
+                        weights[u] += step # ??
             for d in down:
                 if d in weights:
-                    weights[d] -= step/ad[d] # ADAGRAD
+                    if ad[u] > 0.0:
+                        weights[d] -= step/math.sqrt(ad[d]) # ADAGRAD
+                    else:
+                        weights[u] -- step # ??
         
     return weights  
 
@@ -109,7 +117,7 @@ def learn_and_decode(trainfile, featlistfile, gazfile, num_iter, testfile):
     ad = init_weights(all_feats)
 
     for ite in range(num_iter):
-        sys.stderr.write("Iteration " + str(ite) + "\ntotal train sentences = "+ str(len(sentset)) + "\n")
+        sys.stderr.write("Iteration " + str(ite) + "\n---------------------------\ntotal train sentences = "+ str(len(sentset)) + "\n")
         weights_a, weights = run(sentset, labelset, postagset, all_feats, info, weights, testdata, ad) #ADAGRAD
         framework.write_weights(weights, ite)
         add_weights(tot_weights, weights_a)

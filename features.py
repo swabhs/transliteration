@@ -11,12 +11,11 @@ def extract(word, label, prev, postag, info):
     feats = []
     ftype = 100000000
     ltype = 100000
-    vocmap, pmap, tagmap, glist = info
+    vocmap, pmap, tagmap, gmap = info
 
     # 1. bigram
     # feats.append('Li-1='+prev+':Li='+label)
     # one extra feature for stopping/starting probability
-    #print 'Li-1='+prev+':Li='+label
     if label in tagmap and prev in tagmap:
         feats.append(1 * ftype + tagmap[prev] * ltype + tagmap[label])
     elif label in tagmap and prev == "*":
@@ -99,8 +98,9 @@ def extract(word, label, prev, postag, info):
         feats.append(16 * ftype + tagmap[label] * ltype)
 
     # 17. gazetteer
-    #if glist != None and label in tagmap and word in glist:
-        #feats.append(17 * ftype + tagmap[label] * ltype)
+    if gmap != None and label in tagmap and word in gmap:
+        gbin = gmap[word]
+        feats.append(17 * ftype + tagmap[label] * ltype + gbin)
 
 #    if feat_list == None:
 #        return feats

@@ -30,7 +30,7 @@ def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfil
     tot_prec_bi = 0
     tot_prec_o = 0
     
-    sys.stderr.write("total test sentences = " + str(len(sents)) + "\n\n")
+    sys.stderr.write("total test sentences = " + str(len(sents)) + "\n")
     for i in range(len(sents)):
         sys.stderr.write(str(i) + "\r")
 	sent = sents[i]
@@ -57,12 +57,13 @@ def decode(sents, goldtagseqs, postagseqs, info, weights) : #estfile, weightsfil
         print
         
         tot += len(tags)
-    sys.stderr.write("accuracy  = "    + str(acc/tot) + "\n")
+    sys.stderr.write("accuracy     = "    + str(acc/tot) + "\n")
     sys.stderr.write("BI recall    = " + str(tp_bi/tot_rec_bi) + "\n")
-#    if tot_prec_bi != 0:
-#        sys.stderr.write("BI precision = " + str(tp_bi/tot_prec_bi) + "\n\n")
-    sys.stderr.write("O recall = "     + str(tp_o/tot_rec_o) + "\n")
-    #sys.stderr.write("O precision = "  + str(tp_o/tot_prec_o) + "\n\n")
+    if tot_prec_bi > 0:
+        sys.stderr.write("BI precision = " + str(tp_bi/tot_prec_bi) + "\n")
+    sys.stderr.write("O recall     = "     + str(tp_o/tot_rec_o) + "\n")
+    if tot_prec_o > 0:
+        sys.stderr.write("O precision  = "  + str(tp_o/tot_prec_o) + "\n\n")
 
 if __name__ == "__main__":
     testfile = sys.argv[1]

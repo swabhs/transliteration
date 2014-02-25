@@ -5,12 +5,12 @@ from time import time
 import sys, re
 
 def write_weights(weights, iteration):
-    filename = "w/"+ str(time())+"_" + str(iteration) + ".dat"
+    filename = "wfinal/"+ str(time()%10000)+"_" + str(iteration) + ".dat"
     f = open(filename, "w")
     for k,v in weights.iteritems():
         f.write(str(k)+" "+str(v)+"\n")
     f.close()
-    sys.stderr.write("\nweights in " + filename +"\n")
+    sys.stderr.write("weights in " + filename +"\n")
 
 def read_features(featsfile):
     featlist = []
@@ -105,7 +105,7 @@ def get_maps(sents, postagseqs, gazfile):
 def get_gazetteer(gazfile):
     if gazfile == "x.dat":
         return None
-    glist = []
+    gmap = {}
     g = open(gazfile, 'r')
     j = 1
     while True:
@@ -113,10 +113,10 @@ def get_gazetteer(gazfile):
        if not line:
            break
        word, score = line.strip().split(" ")
-       glist.append(word)
+       gmap[word] = int(float(score))
        j += 1
     g.close()
-    return glist
+    return gmap
 
 def get_all(trainfile, gazfile, featfile):
     sys.stderr.write("reading training data\n")
@@ -124,8 +124,8 @@ def get_all(trainfile, gazfile, featfile):
     info = get_maps(sents, postagseqs, gazfile)
  
     sys.stderr.write("extracting features from " + str(len(sents)) + " sentences\n")
-    featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
-    #featlist = read_features(featfile)
+    #featlist = extract_all_train_features(sents,tagseqs, postagseqs, info)
+    featlist = read_features(featfile)
 
     return sents, tagseqs, postagseqs, featlist, info
 
