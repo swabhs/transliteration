@@ -1,23 +1,28 @@
 ===================================================================================================
 To train the classifier, run:
 
-pypy perceptron.py train.dat featlist.dat gaz.dat x test.dat > weights.dat
+pypy perceptron.py train.dat featlist.dat gaz.dat brown.dat x test.dat > weights.dat
 
 train.dat    - the training data file is a tab-separated file in this format:
 
 de_word	de_pos	de_tag
 
 featlist.dat - the feature list file is a list of preextracted features from
-               the training data. Find it at /usr0/home/sswayamd/transliteration/featlist.dat
+               the training data. 
+               Find it at /usr0/home/sswayamd/transliteration/featlist.dat
 
-gaz.dat      - file containing german/english words from the gazetteer
+gaz.dat      - file containing german/english words from the gazetteer. 
+               Find it at /usr0/home/sswayamd/transliteration/gaz.de-en
+
+brown.dat    - file containing the brown clusters. 
+               Find it at /usr0/home/sswayamd/transliteration/brown.dat
 
 x            - number of iterations you want to run
 
 test.dat     - the test data file in a tab-separated file in the same format as the
                training data
 
-weights.dat  - output file containing the feature names and feature weights, space-separated,
+final.model  - output file containing the feature names and feature weights, space-separated,
                from every iteration. Feature weights from different iterations are separated
                by a blank line.
 
@@ -25,9 +30,9 @@ weights.dat  - output file containing the feature names and feature weights, spa
 
 To run the decoder:
 
-pypy decode.py test.dat weights.dat gaz.dat > output.dat
+pypy decode.py test.dat final.model gaz.dat brown.dat > output.dat
 
-A fully trained model can be found at /usr0/home/sswayamd/transliteration/weights.dat
+A fully trained model can be found at /usr0/home/sswayamd/transliteration/final.model
 
 output.dat   - contains the output tags in the same format as the test file
 
