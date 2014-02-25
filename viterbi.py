@@ -31,6 +31,8 @@ def execute(sentence, labelset, postags, weights, info):
 #    print 'main viterbi algorithm ...'
 #    print ' '.join(labelset)
     for k in xrange(1, n+1):
+        if k == 2:
+            labelset.remove('*')
         for u in labelset:
             max_score = float("-inf")
             argmax = def_label

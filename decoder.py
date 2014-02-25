@@ -69,8 +69,9 @@ if __name__ == "__main__":
     testfile = sys.argv[1]
     weightsfile = sys.argv[2]
     gazfile = sys.argv[3]
+    brownfile = sys.argv[4]
     sents, goldtagseqs, postagseqs = read_data(testfile)
-    info = get_maps(sents, postagseqs, gazfile)
+    info = get_maps(sents, postagseqs, gazfile, brownfile)
     weights = read_weights(weightsfile)
     decode(sents, goldtagseqs, postagseqs, info, weights)
 
